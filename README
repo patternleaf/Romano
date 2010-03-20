@@ -1,0 +1,50 @@
+# Romano
+
+An object-oriented Javascript/HTML5 game application framework.
+
+## Goals
+
+Some pleasantly-abstracted 2D game engine logic in Javascript which is somewhat agnostic about display technology. Or at least enough that, for now, it can drive a canvas element and/or an SVG element.
+
+"Game engine logic" means, for now:
+
+- a viewport abstraction
+- a "game space" abstraction, with a "camera" attached to the viewport
+- sprite hierarchy, with parent transforms inherited by children
+- some basic physics baked in (acceleration, angular momentum, etc)
+- collision detection
+
+Some other niceties I'm shooting for:
+
+- compatibility with RaphaelJS (SVG only)
+- simultaneous canvas and SVG rendering (??)
+- on-the-fly SVG file loading (working)
+- oct-tree collision detection
+- object graph persistence capable of handling reference cycles
+
+## Dependencies
+
+Currently Romano depends on RaphaelJS (http://raphaeljs.com) and jQuery (http://jQuery.com). The Raphael dependency will be optional for those who want it, but jQuery's going to stick around.
+
+## Status
+
+In development. SVG support and much of the basic game engine logic is more or less working in an alpha-ish way. 
+
+Just getting started with refactoring for canvas rendering. (Just decided to go this way recently.)
+
+Note that the example code crashes older WebKit builds. The latest Safari as of this writing (March 2010), 4.0.5, fixed this, but Chrome is going to bonk.
+
+## Next Steps
+
+Maybe in this order, maybe not:
+
+1. Continue refactoring/abstracting for canvas support.
+2. More examples.
+3. Graph persistence?
+4. ?????
+5. Profit! (ok, probably not)
+
+## "Romano?"
+
+This project started as a teaching tool for a university course in interactive design. The code was tied to and depended on RaphaelJS (http://raphaeljs.com). It's moving away from that now, but it needed a name, and Guilio Romano was a pupil of the artist Raphael Urbino. Also, Romano is a kind of cheese and I like cheese. So the name stuck. :)
+
