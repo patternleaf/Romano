@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<title>sketch</title>
+	<style type="text/css" media="screen">
+		body {
+			background:#888;
+			color:#eee;
+		}
+		#centered {
+			width:700px;
+			margin:10px auto;
+		}
+		#viewport-container {
+			width:700px;
+			margin:10px auto;
+		}
+		#top-legend {
+			font-size:16px;
+			font-family: Helvetica, sans-serif;
+			padding-left:0;
+		}
+		#top-legend li {
+			float:left;
+			margin-right:25px;
+			list-style:none;
+		}
+		#debug {
+			float:left; 
+			width:200px; 
+			font-size:10px;
+			color:white; 
+			font-family:monospace;
+		}
+	</style>
+
+</head>
+<body>
+	<div id="debug">
+		
+	</div>
+	<div id="centered">
+		<ul id="top-legend">
+			<li id="cheese-pouch">0 Cheeses Found</li>
+			<li id="cheese-count">10 Cheeses to Go</li>
+		</ul>
+		<div id="viewport-container">
+		
+		</div>
+	</div>
+	<script type="text/javascript" src="../../dependencies/jquery-1.4.2-mod.js"></script>
+	<script type="text/javascript" src="../../dependencies/raphael-1.3.2.js"></script>
+	<script type="text/javascript" src="../../classes/Romano.js"></script>
+	<script type="text/javascript" src="../../classes/Viewport.js"></script>
+	<script type="text/javascript" src="../../classes/RaphaelViewport.js"></script>
+	<script type="text/javascript" src="../../classes/Sprite.js"></script>
+	<script type="text/javascript" src="../../classes/WrappedSpace.js"></script>
+	<script type="text/javascript" src="../../classes/WrappedHUD.js"></script>
+	<script type="text/javascript" src="../../classes/WrappableSprite.js"></script>
+
+
+	<script type="text/javascript" charset="utf-8">
+		window.CheeseQuest = Romano.Application.extend({ }, 'CheeseQuest');
+	</script>
+	
+	<script type="text/javascript" src="Player.js"></script>
+	<script type="text/javascript" src="Cheese.js"></script>
+	<script type="text/javascript" src="Saucer.js"></script>
+	<script type="text/javascript" src="Star.js"></script>
+	
+	<script type="text/javascript" charset="utf-8">
+		(function($) {
+			window.app = new CheeseQuest();
+
+			$(document).ready(function() {
+
+				app.viewport = window.viewport = new Romano.Viewport({
+					width: 800,
+					height: 600,
+					frameRate: 60,
+					camera: {
+						maxAcceleration: 10,
+						damping: .7,
+						friction: .2
+					}
+				}, $('#viewport-container').get(0));
+
+				app.wrappedSpace = new Romano.WrappedSpace(
+					{ width: 8000, height: 6000 },
+					app.viewport,
+					{ x: 0, y: 0 }
+				);
+
+				app.player = window.player = new CheeseQuest.Player(app.viewport);
+
+				$(app.player).bind('endFrame', function() {
+					var p = this.getPosition();
+					var vp = this.getViewportPosition();
+					var ka = this.getAcceleration();
+		//			var cp = this.viewport.camera.position;
+		//			var cv = this.viewport.camera.velocity;
+		//			var ca = this.viewport.camera.acceleration;
+					var s = [];
+					s.push('framerate: ' + this.viewport.getFPS().toString().substr(0, 6));
+					s.push('player world: {' + p.x.toString().substr(0, 6) + ', ' + p.y.toString().substr(0, 6) + '}');
+					$('#debug').html(s.join('<br/>'));
+				});
+
+				$(app.player).bind('wrapped', function() {
+					var p = app.player.getPosition();
+					app.viewport.setPosition(p.x - 400, p.y - 300);
+					for (var i = 0; i < app.stars.length; i++) {
+						app.stars[i].setViewportPosition(
+							Math.random() * app.viewport.width,
+							Math.random() * app.viewport.height
+						);
+					}
+				});
+
+				app.player.setPosition(400, 300);
+
+				app.keyRepeatMask = [];
+				app.viewport.keydown(function(event) {
+					if (app.keyRepeatMask.indexOf(event.which) != -1) {
+						return;
+					}
+					app.keyRepeatMask.push(event.which);
+					switch (event.which) {
+						case 38: // up arrow
+							app.thrustOn();
+						break;
+						case 39: // right arrow
+							app.player.rotate(2);
+						break;
+						case 40: // down arrow
+							app.thrustOn();
+						break;
+						case 37: // left arrow
+							app.player.rotate(-2);
+						break;
+					}
+					return false;
+				});
+				app.viewport.keyup(function(event) {
+					var maskIndex = app.keyRepeatMask.indexOf(event.which);
+					if (maskIndex == -1) {
+						return;
+					}
+					app.keyRepeatMask.splice(maskIndex, 1);
+					switch (event.which) {
+						case 38: // up arrow
+							app.thrustOff();
+						break;
+						case 39: // right arrow
+							app.player.rotate(-2);
+						break;
+						case 40: // down arrow
+							app.thrustOff();
+						break;
+						case 37: // left arrow
+							app.player.rotate(2);
+						break;
+					}
+					return false;
+				});
+
+				app.stars = [];
+
+				for (var i = 0; i < 10; i++) {
+					app.stars.push(new CheeseQuest.Star('star-' + i, app.viewport, { 
+						position: {
+							x: Math.random() * app.viewport.width, 
+							y: Math.random() * app.viewport.height 
+						}
+					}));
+				}
+
+				app.cheeses = [];
+				for (var i = 0; i < 10; i++) {
+					app.cheeses.push(new CheeseQuest.Cheese('cheese-' + i, app.viewport, {
+						position: {
+							x: Math.random() * app.wrappedSpace.width,
+							y: Math.random() * app.wrappedSpace.height,
+						}
+					}))
+				}
+
+
+				app.saucers = [];
+				for (var i = 0; i < 1; i++) {
+					app.saucers.push(new CheeseQuest.Saucer('saucer-' + i, app.viewport, {
+						position: {
+							x: Math.random() * app.wrappedSpace.width,
+							y: Math.random() * app.wrappedSpace.height,
+						}
+					}));
+				}
+
+				viewport.run();
+				app.drawBackground();
+				$(app).trigger('ready');
+
+				app.hud = new Romano.WrappedHUD(app.viewport, app.wrappedSpace, .03);
+				$(app.viewport).bind('endFrame', function() {
+					app.hud.update();
+				})
+
+				$(app.player).bind('pickedUpCheese', function() {
+					$('#cheese-pouch').html(app.player.cheesePouch.length + ' Cheeses Found');
+					$('#cheese-count').html((app.cheeses.length - app.player.cheesePouch.length) + ' Cheeses To Go');
+				});
+			});
+
+			app.thrust = function() {
+				var r = (app.player.getRotation() - 90);
+				app.viewport.addAcceleration(Romano.makeVector(r, 20));
+				app.player.addAcceleration(Romano.makeVector(r, 20));
+			}
+
+			app.thrustOff = function() {
+				$(app.viewport).unbind('beginFrame', app.thrust);
+				this.player.turnJetsOff();
+			};
+
+			app.thrustOn = function() {
+				$(app.viewport).bind('beginFrame', app.thrust);
+				this.player.turnJetsOn();
+			};
+
+
+			app.drawBackground = function() {
+				var w = app.viewport.width - 1;
+				var h = app.viewport.height - 1;
+				//app.gridSize = w / app.gridDimensions;
+				var p = app.viewport.paper;
+
+
+				var rect = p.rect(0, 0, w, h).attr('fill', '#222222');
+				rect.toBack();
+			};
+
+
+		})(jQuery);
+	</script>
+	
+	
+</body>
+</html>

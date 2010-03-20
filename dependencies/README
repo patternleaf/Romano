@@ -1,0 +1,3 @@
+@todo: figure out how git's equivalent to svn:externals
+
+also we've got our own jQuery because there's a bug in 1.4.2. see http://github.com/jquery/jquery/blob/7f5179b65431b77e89fa32623a5000e3630c191c/src/event.js

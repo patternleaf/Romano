@@ -1,0 +1,9 @@
+# CheeseQuest
+
+Working (as in under development) example for Romano.
+
+Tested in Safari 4.0.5 and Firefox 3.6. Crashes Chrome.
+
+Click on the viewport to give it focus; arrow keys fly you around.
+
+@todo: Take out Gir. I love him, but don't wanna make anyone upset.
