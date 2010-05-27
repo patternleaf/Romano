@@ -7,7 +7,6 @@
 		},
 		setContainer: function(container) {
 			this.container = container;
-		
 		},
 		container: null
 	}, 'Romano.Renderer');
