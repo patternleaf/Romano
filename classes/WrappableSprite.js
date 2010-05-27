@@ -4,9 +4,9 @@
 	 * 2. Wraps its position around the edges of a wrapped space
 	 */
 	Romano.WrappableSprite = Romano.Sprite.extend({
-		init: function(id, viewport, initialState) {
+		init: function(id, viewport, renderer, initialState) {
 			this.wrappedSpace = Romano.app.wrappedSpace;	// assumption
-			this._super(id, viewport, initialState);
+			this._super(id, viewport, renderer, initialState);
 			this.wrappedSpace.addWrappable(this);
 			$(this).bind('positionChanged', this.handlePositionChanged);
 		},

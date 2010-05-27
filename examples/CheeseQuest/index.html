@@ -55,6 +55,7 @@
 	<script type="text/javascript" src="../../classes/Viewport.js"></script>
 	<script type="text/javascript" src="../../classes/RaphaelViewport.js"></script>
 	<script type="text/javascript" src="../../classes/Sprite.js"></script>
+	<script type="text/javascript" src="../../classes/SVGSprite.js"></script>
 	<script type="text/javascript" src="../../classes/WrappedSpace.js"></script>
 	<script type="text/javascript" src="../../classes/WrappedHUD.js"></script>
 	<script type="text/javascript" src="../../classes/WrappableSprite.js"></script>
@@ -62,6 +63,7 @@
 
 	<script type="text/javascript" charset="utf-8">
 		window.CheeseQuest = Romano.Application.extend({ }, 'CheeseQuest');
+		window.app = new CheeseQuest();
 	</script>
 	
 	<script type="text/javascript" src="Player.js"></script>
@@ -71,20 +73,23 @@
 	
 	<script type="text/javascript" charset="utf-8">
 		(function($) {
-			window.app = new CheeseQuest();
 
 			$(document).ready(function() {
 
-				app.viewport = window.viewport = new Romano.Viewport({
-					width: 800,
-					height: 600,
-					frameRate: 60,
-					camera: {
-						maxAcceleration: 10,
-						damping: .7,
-						friction: .2
-					}
-				}, $('#viewport-container').get(0));
+				app.viewport = window.viewport = new Romano.Viewport(
+					{
+						width: 800,
+						height: 600,
+						frameRate: 60,
+						camera: {
+							maxAcceleration: 10,
+							damping: .7,
+							friction: .2
+						}
+					}, 
+					$('#viewport-container'), 
+					new Romano.RaphaelSurface()
+				);
 
 				app.wrappedSpace = new Romano.WrappedSpace(
 					{ width: 8000, height: 6000 },
@@ -93,20 +98,21 @@
 				);
 
 				app.player = window.player = new CheeseQuest.Player(app.viewport);
-
+/*
 				$(app.player).bind('endFrame', function() {
 					var p = this.getPosition();
 					var vp = this.getViewportPosition();
 					var ka = this.getAcceleration();
-		//			var cp = this.viewport.camera.position;
-		//			var cv = this.viewport.camera.velocity;
-		//			var ca = this.viewport.camera.acceleration;
+					var cp = this.viewport.camera.position;
+					var cv = this.viewport.camera.velocity;
+					var ca = this.viewport.camera.acceleration;
 					var s = [];
 					s.push('framerate: ' + this.viewport.getFPS().toString().substr(0, 6));
 					s.push('player world: {' + p.x.toString().substr(0, 6) + ', ' + p.y.toString().substr(0, 6) + '}');
+					s.push('viewport world: {' + cp.x.toString().substr(0, 6) + ', ' + cp.y.toString().substr(0, 6) + '}');
 					$('#debug').html(s.join('<br/>'));
 				});
-
+*/
 				$(app.player).bind('wrapped', function() {
 					var p = app.player.getPosition();
 					app.viewport.setPosition(p.x - 400, p.y - 300);
@@ -183,7 +189,7 @@
 							x: Math.random() * app.wrappedSpace.width,
 							y: Math.random() * app.wrappedSpace.height,
 						}
-					}))
+					}));
 				}
 
 
@@ -210,22 +216,23 @@
 					$('#cheese-pouch').html(app.player.cheesePouch.length + ' Cheeses Found');
 					$('#cheese-count').html((app.cheeses.length - app.player.cheesePouch.length) + ' Cheeses To Go');
 				});
+
 			});
 
 			app.thrust = function() {
 				var r = (app.player.getRotation() - 90);
-				app.viewport.addAcceleration(Romano.makeVector(r, 20));
-				app.player.addAcceleration(Romano.makeVector(r, 20));
+				app.viewport.addAcceleration(Romano.makeVector(r, 5));
+				app.player.addAcceleration(Romano.makeVector(r, 5));
 			}
 
 			app.thrustOff = function() {
 				$(app.viewport).unbind('beginFrame', app.thrust);
-				this.player.turnJetsOff();
+				app.player.turnJetsOff();
 			};
 
 			app.thrustOn = function() {
 				$(app.viewport).bind('beginFrame', app.thrust);
-				this.player.turnJetsOn();
+				app.player.turnJetsOn();
 			};
 
 
@@ -233,10 +240,9 @@
 				var w = app.viewport.width - 1;
 				var h = app.viewport.height - 1;
 				//app.gridSize = w / app.gridDimensions;
-				var p = app.viewport.paper;
+				var surface = app.viewport.getSurface();
 
-
-				var rect = p.rect(0, 0, w, h).attr('fill', '#222222');
+				var rect = surface.raphael.rect(0, 0, w, h).attr('fill', '#222222');
 				rect.toBack();
 			};
 

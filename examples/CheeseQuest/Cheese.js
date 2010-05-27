@@ -11,9 +11,13 @@
 				rotationFriction: .9,
 				collidable: true
 			};
-			this._super(id, viewport, $.extend(defaultState, (initialState || {})));
-			//this.setSource('resources/cheese.svg');
-			this.setSource('resources/cheese.svg');
+			this._super(
+				id, 
+				viewport, 
+				new Romano.RaphaelRenderer(),
+				$.extend(defaultState, (initialState || {}))
+			);
+			this.renderer.setSource('resources/cheese.svg');
 			this.setScale(.6);
 			$(this).bind('endFrame', this.onEndFrame._plBind(this));
 

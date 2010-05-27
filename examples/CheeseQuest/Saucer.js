@@ -10,11 +10,17 @@
 				maxAcceleration: 5,
 				rotationFriction: .9
 			};
-			this._super(id, viewport, $.extend(defaultState, (initialState || {})))
+			this._super(
+				id, 
+				viewport, 
+				new Romano.RaphaelRenderer(),
+				$.extend(defaultState, (initialState || {}))
+			);
+			
 			this.frame = 1;
 			this.cycle = 0;
 			this.maxFrame = 24;
-			this.setSource('resources/rotating-spaceship/svg/' + this.frame + '.svg');
+			this.getRenderer().setSource('resources/rotating-spaceship/svg/' + this.frame + '.svg');
 			this.setScale(.6);
 			$(this).bind('endFrame', this.onEndFrame._plBind(this));
 			$(this).bind('leftViewport', this.onLeftViewport._plBind(this));
@@ -29,10 +35,10 @@
 				sources.push('resources/rotating-spaceship/svg/' + i + '.svg');
 			}
 
-			this.preloadSources(sources, (function() {
+			this.getRenderer().preloadSources(sources, (function() {
 				for (var i = 1; i <= 24; i++) {
-					this.setSource(sources[i - 1], (function() {
-						var symbol = this.getCurrentSymbol();
+					this.getRenderer().setSource(sources[i - 1], (function() {
+						var symbol = this.getRenderer().getCurrentSymbol();
 						$('path', symbol.childNodes[0]).each(function() {
 							var style = this.getAttribute('style');
 							if (style.indexOf('fill: rgb(255, 255, 255);') > 0) {
@@ -55,7 +61,7 @@
 		},
 		onEndFrame: function() {
 			if (this.onScreen) {
-				this.setSource('resources/rotating-spaceship/svg/' + this.frame + '.svg');
+				this.getRenderer().setSource('resources/rotating-spaceship/svg/' + this.frame + '.svg');
 				if (this.frame >= 24) {
 					this.frame = 1;
 				}

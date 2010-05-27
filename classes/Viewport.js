@@ -1,22 +1,30 @@
 (function($) {
-	/**
-	 * 
-	 */
+	Romano.Viewport = Romano.RObject.extend( /** lends Romano.Viewport.prototype */ {
 
-	Romano.Viewport = Romano.RObject.extend({
-		init: function(options, container) {
+		/**
+		 * A viewport is the square window onto your scene. Viewports have
+		 * a width and height, and also an <x, y> camera position in the world.
+		 * Viewports control framerates and trigger frames sprites.
+		 * 
+		 * @param {Object} options
+		 * @param {DOMNode | jQuery} container
+		 * @param {Romano.Surface} 
+		 * @extends Romano.RObject
+		 * @constructs Romano.Viewport
+		 */
+		init: function(options, container, surface) {
 			if ('jquery' in container) {
-				this.container = container.get(0);
+				this.jqContainer = container;
 			}
 			else {
-				this.container = container;
+				this.jqContainer = $(container);
 			}
-			this.paper = Raphael(this.container, options.width, options.height);
-
-			this.paper.canvas.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
 			this.width = options.width;
 			this.height = options.height;
+			
+			this.surface = surface;
+			surface.setup(this.jqContainer, this.width, this.height)
 
 			this.camera = $.extend({
 				position: { x: 0, y: 0 },
@@ -33,21 +41,17 @@
 				acceleration: $.extend({}, this.camera.acceleration)
 			};
 
-			this.setSize = this.paper.setSize;
 			this.frame = 0;
 			this.frameRate = options.frameRate || 30;
 			this.fps = 0;
 			this.lastFrameTime = 0;
 			this.running = options.running || true;
 			this.sprites = {};
-			this.sourceCopies = {};
 			this.timer = null;
-			this.loadedSymbols = {};
-			this.loadingSymbolCallbacks = {};
 			this.debug = { bbox: false, position: false };
 
 			this.keyInput = $('<input type="text" style="position:absolute; left:-32000px; height:0px; width:0px" />');
-			$(this.container).append(this.keyInput);
+			this.jqContainer.append(this.keyInput);
 			this.keyInput.keydown((function(event) {
 				this.handleKeyDown(event);
 			})._plBind(this));
@@ -55,15 +59,24 @@
 				this.handleKeyUp(event);
 			})._plBind(this));
 
-			$(this.container).click((function() {
+			this.jqContainer.click((function() {
 				this.focus();
 			})._plBind(this));
 
 			this.offsets = {
-				left: $(this.container).offset().left,
-				top: $(this.container).offset().top
+				left: this.jqContainer.offset().left,
+				top: this.jqContainer.offset().top
 			};
 			Romano.registerViewport(this);
+		},
+
+		setSize: function(width, height) {
+			this.surface.setSize(width, height);
+			return this;
+		},
+		
+		getSurface: function() {
+			return this.surface;
 		},
 
 		run: function() {
@@ -241,94 +254,6 @@
 			return this;
 		},
 
-		/**
-		 * 
-		 */
-		makeNewSymbolID: function(name, copySymbol /* = false */) {
-			if (!(name in this.sourceCopies)) {
-				this.sourceCopies[name] = 0;
-			}
-			else if (copySymbol) {
-				this.sourceCopies[name] += 1;
-			}
-			return 'symbol-' + name.replace(/\/|\./g, '-') + '-' + this.sourceCopies[name];
-		},
-
-		/**
-		 * The viewport loads symbols into a <defs> container. A symbol may then be
-		 * used by multiple sprites via a <use> tag.
-		 */
-		loadSymbol: function(source, readyCallback, copySymbol /* = false */) {
-
-			var symbolID = this.makeNewSymbolID(source, copySymbol);
-			if (symbolID in this.loadedSymbols) {
-				// symbol already loaded
-				setTimeout((function() {
-					readyCallback(this.loadedSymbols[symbolID]);
-				})._plBind(this), 1);
-				return this;
-			}
-			else if (symbolID in this.loadingSymbolCallbacks) {
-				// symbol still loading
-				this.loadingSymbolCallbacks[symbolID].push(readyCallback);
-				return this;
-			}
-			// otherwise, we haven't heard of this one before ...
-			if (source.substr(-4).toLowerCase() == '.svg') {
-				var jqiFrame = $('<iframe border="none" style="display:none;" />');
-				var viewport = this;
-
-				jqiFrame.load(function() {
-					var iframeDoc = jqiFrame.get(0).contentWindow || jqiFrame.get(0).contentDocument;
-					if (iframeDoc.document) {
-						iframeDoc = iframeDoc.document;
-					}
-
-					var graphics = $('svg', iframeDoc).clone();
-					$.each(['id', 'viewbox'], function(i, attr) { graphics.removeAttr(attr); });
-
-					iframeDoc = null;
-					jqiFrame.remove();
-					jqiFrame = null;
-
-					var defs = $('defs', viewport.paper.canvas).get(0);
-					if (!defs) {
-						defs = document.createElementNS(viewport.paper.svgns, 'defs');
-					}
-					var symbol = document.createElementNS(viewport.paper.svgns, 'symbol');
-					symbol.setAttribute('id', symbolID);
-					defs.appendChild(symbol);
-					graphics.each(function() {
-						symbol.appendChild(this);
-					});
-					viewport.loadedSymbols[symbolID] = symbol;
-
-					// all loaded. notify anyone waiting to hear about it.
-					if (symbolID in viewport.loadingSymbolCallbacks) {
-						$.each(viewport.loadingSymbolCallbacks[symbolID], function(i, callback) {
-							callback(symbol);
-						});
-						delete viewport.loadingSymbolCallbacks[symbolID];
-					}
-
-				});
-
-				if (!(symbolID in this.loadingSymbolCallbacks)) {
-					this.loadingSymbolCallbacks[symbolID] = [];
-				}
-				this.loadingSymbolCallbacks[symbolID].push(readyCallback);
-				$('body').append(jqiFrame.attr('src', source));
-			}
-			else {
-				// code to load images
-			}
-
-			return this;
-		},
-
-		getSymbol: function(source, callback) {
-		},
-
 		registerSprite: function(sprite) {
 			var spriteID = sprite.getID();
 			if (!(spriteID in this.sprites)) {
@@ -341,16 +266,6 @@
 			if (spriteID in this.sprites) {
 				delete this.sprites[spriteID];
 			}
-		},
-
-		makeGroup: function() {
-		    var el = document.createElementNS(this.paper.svgns, "g");
-		    if (this.paper.canvas) {
-		        this.paper.canvas.appendChild(el);
-		    }
-			el.node = el;
-			el.transformations = [];
-			return el;
 		},
 
 		keydown: function(f) {

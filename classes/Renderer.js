@@ -1,4 +1,7 @@
 (function($) {
+	/**
+	 * 
+	 */
 	Romano.Renderer = Romano.RObject.extend({
 		init: function() {
 		},

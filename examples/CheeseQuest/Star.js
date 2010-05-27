@@ -12,24 +12,24 @@
 				rotationFriction: .9
 			};
 
-			this._super(id, viewport, $.extend(defaultState, (initialState || {})))
+			this._super(
+				id, 
+				viewport, 
+				new Romano.RaphaelRenderer(),
+				$.extend(defaultState, (initialState || {}))
+			);
 
 			this.distance = 0;//Math.random();
-
+			
+			this.surface = this.renderer.getSurface();
+			
 			var p = this.getViewportPosition();
 			this.initialDiameter = Math.max(1, Math.random() * 3);
-			this.ellipse = this.paper.ellipse(0, 0, this.initialDiameter, this.initialDiameter);
+			this.ellipse = this.surface.raphael.ellipse(0, 0, this.initialDiameter, this.initialDiameter);
 			this.ellipse.attr({ 'fill': '#fff', 'stroke-width': 0 });
 
-			setTimeout((function() {
-				this.ellipse.attr({
-					fill: 'hsb(' + Math.random() + ', ' + Math.min(Math.random(), .7) + ', ' + Math.max(Math.random(), .8) + ')'
-				});
-				setTimeout(arguments.callee._plBind(this), Math.random() * 3000)
-			})._plBind(this), Math.random() * 3000);
-
-			this.group.node.appendChild(this.ellipse.node);
-			this.ellipse.toBack();
+			this.getRenderer().group.appendChild(this.ellipse.node);
+			//this.getRenderer().group.toBack();
 			this.updateTransform(true);
 
 			$(this).bind('leftViewport', function(event, side) {
@@ -81,6 +81,11 @@
 				});
 			}
 			this.leftViewport = false;
+			if (Math.random() > .6) {
+				this.ellipse.attr({
+					fill: 'hsb(' + Math.random() + ', ' + Math.min(Math.random(), .7) + ', ' + Math.max(Math.random(), .8) + ')'
+				});
+			}
 		}
 	}, 'CheeseQuest.Star');
 

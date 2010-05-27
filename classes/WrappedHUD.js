@@ -12,7 +12,7 @@
 
 			this.left = viewport.width - this.width - 10;
 			this.top = 10;
-			this.bg = this.viewport.paper.rect(this.left, this.top, this.width, this.height, 4);
+			this.bg = this.viewport.getSurface().raphael.rect(this.left, this.top, this.width, this.height, 4);
 			this.bg.attr({
 				fill: '#fff',
 				opacity: .3
@@ -21,7 +21,7 @@
 			this.objects = {};
 
 			var vp = this.viewport.getPosition();
-			this.viewportRect = this.viewport.paper.rect(
+			this.viewportRect = this.viewport.getSurface().raphael.rect(
 				this.left + (vp.x * scale), 
 				this.top + (vp.y * scale),
 				this.viewport.width * scale,
@@ -62,7 +62,7 @@
 				else {
 					this.objects[id] = wrappables[id].getIcon({ x: this.left + p.x, y: this.top + p.y });
 					if (!this.objects[id]) {
-						this.objects[id] = this.viewport.paper.circle(this.left + p.x, this.top + p.y, 1);
+						this.objects[id] = this.viewport.getSurface().raphael.circle(this.left + p.x, this.top + p.y, 1);
 						this.objects[id].attr({
 							fill: '#999',
 							'stroke-width': 0

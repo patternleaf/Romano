@@ -93,6 +93,10 @@
 		return RObject;
 	};
 	
+	Romano.RObject.prototype.toString = function() {
+		return this._className + '[' + this._guid + ']';
+	};
+	
 	
 	Romano.Persistable = Romano.RObject.extend({
 		init: function() {
@@ -175,6 +179,76 @@
 		_activeGraph: null
 	}, 'Romano.Application');
 	
+	
+	Romano.Exception = function(message, detail, code) {
+		this.message = message || '';
+		this.detail = detail || '';
+		this.code = code || 0;
+		Error.apply(this, [message]);
+	};
+	Romano.Exception.prototype = new Error();
+	
+	Romano.Exception.extend = function(o) {
+		// @todo. or just use RObject?
+	};
+	
+	
+	Romano.assert = function(test, message) {
+		if (!test) {
+			throw new Romano.Exception('Assertion Condition Failed', message);
+		}
+	};
+	
+	Romano._initSecretSVG = function() {
+		if (!Romano._svg) {
+			Romano._svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			Romano._svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+			Romano._svg.setAttribute('version', '1.1');
+			Romano._svg.setAttribute('width', 0);
+			Romano._svg.setAttribute('height', 0);
+		}
+	};
+	
+	Romano._svg = null;
+	Romano.Matrix = function(a, b, c, d, e, f) {
+		if (!Romano._svg) {
+			Romano._initSecretSVG();
+		}
+		this._m = Romano._svg.createSVGMatrix();
+		if (arguments.length == 1) {
+			this._m = a;
+		}
+		else if (arguments.length) {
+			this._m.a = a;
+			this._m.b = b;
+			this._m.c = c;
+			this._m.d = d;
+			this._m.e = e;
+			this._m.f = f;
+		}
+	};
+	Romano.Matrix.prototype.get = function(element) {
+		return this._m[element];
+	};
+	Romano.Matrix.prototype.reset = function() {
+		this._m = Romano._svg.createSVGMatrix();
+	};
+	Romano.Matrix.prototype.rotate = function(degrees) {
+		this._m = this._m.rotate(degrees);
+	};
+	Romano.Matrix.prototype.translate = function(x, y) {
+		this._m = this._m.translate(x, y);
+	};
+	Romano.Matrix.prototype.scale = function(s) {
+		this._m = this._m.scale(s);
+	};
+	Romano.Matrix.prototype.scaleNonUniform = function(x, y) {
+		this._m = this._m.scaleNonUniform(x, y);
+	};
+	Romano.Matrix.prototype.multiply = function(matrix) {
+		this._m = this._m.multiply(matrix._m);
+	};
+
 
 	// if currently colliding
 	// if collision between next frame boundaries (unimplemented)
@@ -263,20 +337,23 @@
 	Romano.registerViewport = function(viewport) {
 		Romano.viewports.push(viewport);
 		if (Romano.viewports.length == 1) {
+			if (!Romano._svg) {
+				Romano._initSecretSVG();
+			}
 			Romano._transformPoints = {
-				ul: viewport.paper.canvas.createSVGPoint(),
-				ur: viewport.paper.canvas.createSVGPoint(),
-				ll: viewport.paper.canvas.createSVGPoint(),
-				lr: viewport.paper.canvas.createSVGPoint()
+				ul: Romano._svg.createSVGPoint(),
+				ur: Romano._svg.createSVGPoint(),
+				ll: Romano._svg.createSVGPoint(),
+				lr: Romano._svg.createSVGPoint()
 			};
 		}
 	};
 	
-	Romano.transformPoint = function(point, svgMatrix) {
+	Romano.transformPoint = function(point, romanoMatrix) {
 		var p = Romano._transformPoints.ul;
 		p.x = point.x;
 		p.y = point.y;
-		p = p.matrixTransform(svgMatrix);
+		p = p.matrixTransform(romanoMatrix._m);
 		return { x: p.x, y: p.y };
 	};
 	
@@ -284,8 +361,8 @@
 	 * Returns a rect transformed by the passed matrix, both its
 	 * individual points, and its bounding box.
 	 */
-	Romano.transformRect = function(svgRect, svgMatrix) {
-		if (!svgMatrix || !svgRect) {
+	Romano.transformRect = function(svgRect, romanoMatrix) {
+		if (!romanoMatrix || !svgRect) {
 			return {
 				bounding: {
 					x: 0, y: 0, width: 0, height: 0
@@ -310,21 +387,11 @@
 		ll.y = svgRect.y + svgRect.height;
 		lr.x = svgRect.x + svgRect.width;
 		lr.y = svgRect.y + svgRect.height;
-		ul = ul.matrixTransform(svgMatrix);
-		ur = ur.matrixTransform(svgMatrix);
-		ll = ll.matrixTransform(svgMatrix);
-		lr = lr.matrixTransform(svgMatrix);
-/*		
-* 		originally attached to a viewport ... hmm.
-		ul.x -= this.offsets.left;
-		ur.x -= this.offsets.left;
-		ll.x -= this.offsets.left;
-		lr.x -= this.offsets.left;
-		ul.y -= this.offsets.top;
-		ur.y -= this.offsets.top;
-		ll.y -= this.offsets.top;
-		lr.y -= this.offsets.top;
-*/
+		ul = ul.matrixTransform(romanoMatrix._m);
+		ur = ur.matrixTransform(romanoMatrix._m);
+		ll = ll.matrixTransform(romanoMatrix._m);
+		lr = lr.matrixTransform(romanoMatrix._m);
+//console.debug(romanoMatrix._m)
 		var maxX = Math.max(ul.x, ur.x, ll.x, lr.x);
 		var maxY = Math.max(ul.y, ur.y, ll.y, lr.y);
 		var minX = Math.min(ul.x, ur.x, ll.x, lr.x);
