@@ -268,6 +268,12 @@
 		return result;
 	};
 	
+	Romano.pointInRect = function(point, rect) {
+		return 
+			(point.x >= rect.x && point.x <= (rect.x + rect.width)) &&
+			(point.y >= rect.y && point.y <= (rect.y + rect.height));
+	}
+	
 	Romano.addVectors = function(v1, v2) {
 		return {
 			x: v1.x + v2.x,

@@ -1,5 +1,5 @@
 ;(function($){
-	Romano.RaphaelRenderer = Romano.RObject.extend({
+	Romano.RaphaelRenderer = Romano.Renderer.extend({
 		init: function() {
 
 			// this.sources: list of source urls that we know about/are loaded
@@ -19,11 +19,8 @@
 		},
 		
 		setup: function(sprite, viewport) {
-			this.sprite = sprite;
-			this.viewport = viewport;
+			this._super(sprite, viewport);
 			
-			this.surface = viewport.getSurface();
-
 			// this.group: our group node
 			this.group = this.surface.makeGroup();
 			this.group.setAttribute('id', this.sprite.getID());
@@ -34,15 +31,6 @@
 			this.instance = document.createElementNS(this.surface.raphael.svgns, 'use');
 			this.group.appendChild(this.instance);
 
-		},
-		getSprite: function() {
-			return this.sprite;
-		},
-		getViewport: function() {
-			return this.viewport;
-		},
-		getSurface: function() {
-			return this.surface;
 		},
 		handleSpriteRemoved: function() {
 			this.group.remove();

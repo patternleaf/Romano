@@ -24,7 +24,7 @@
 			this.height = options.height;
 			
 			this.surface = surface;
-			surface.setup(this.jqContainer, this.width, this.height)
+			surface.setup(this, this.width, this.height)
 
 			this.camera = $.extend({
 				position: { x: 0, y: 0 },
@@ -71,10 +71,19 @@
 		},
 
 		setSize: function(width, height) {
+			this.width = width;
+			this.height = height;
 			this.surface.setSize(width, height);
 			return this;
 		},
 		
+		getSize: function() {
+			return { width: this.width, height: this.height };
+		},
+		
+		getContainer: function() {
+			return this.jqContainer.get(0);
+		},
 		getSurface: function() {
 			return this.surface;
 		},
@@ -85,7 +94,9 @@
 			this.timer = setTimeout((function() {
 				this.fps = 1000 / (new Date().valueOf() - this.lastFrameTime);
 				this.lastFrameTime = new Date().valueOf();
+				
 				$(this).trigger('beginFrame');
+				this.surface.handleBeginFrame();
 
 				this.camera.velocity.x += this.camera.acceleration.x;
 				this.camera.velocity.y += this.camera.acceleration.y;
@@ -101,11 +112,16 @@
 					$(this).trigger('cameraPositionChanged');
 				}
 
+				var sprite = null;
 				for (var spriteID in this.sprites) {
+					sprite = this.sprites[spriteID];
+					this.surface.handleSpritePreFrame(sprite);
 					$(this.sprites[spriteID]).trigger('_frame');
+					this.surface.handleSpritePostFrame(sprite);
 				}
+				
 				for (var spriteID in this.sprites) {
-					var sprite = this.sprites[spriteID];
+					sprite = this.sprites[spriteID];
 					if (sprite.shouldCheckCollisions) {
 						var collisions = sprite.findCollisions();
 						// see if there are any new collisions this sprite doesn't already know about
@@ -127,8 +143,10 @@
 				if (this.running) {
 					this.timer = setTimeout((arguments.callee)._plBind(this), Math.round(1000 / this.frameRate));
 				}
+				
 				$(this).trigger('endFrame');
-
+				this.surface.handleEndFrame();
+				
 				this.camera.last.position.x = this.camera.position.x;
 				this.camera.last.position.y = this.camera.position.y;
 				this.camera.last.velocity.x = this.camera.velocity.x;
@@ -259,6 +277,7 @@
 			if (!(spriteID in this.sprites)) {
 				this.sprites[spriteID] = sprite;
 			}
+			this.surface.registerSprite(sprite);
 		},
 
 		unregisterSprite: function(sprite) {
@@ -266,6 +285,7 @@
 			if (spriteID in this.sprites) {
 				delete this.sprites[spriteID];
 			}
+			this.surface.unregisterSprite(sprite);
 		},
 
 		keydown: function(f) {

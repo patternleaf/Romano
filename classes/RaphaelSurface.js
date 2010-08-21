@@ -2,32 +2,25 @@
 	/**
 	 * 
 	 */
-	Romano.RaphaelSurface = Romano.RObject.extend({
-		init: function() {
-			this.loadedSymbols = {};
-			this.loadingSymbolCallbacks = {};
-			this.sourceCopies = {};
-		},
-		setup: function(domContainer, width, height) {
-			if ('jquery' in domContainer) {
-				this.jqContainer = domContainer;
-			}
-			else {
-				this.jqContainer = $(domContainer);
-			}
-			this.raphael = Raphael(domContainer.get(0), width, height);
+	Romano.RaphaelSurface = Romano.Surface.extend({
+		setup: function(viewport, width, height) {
+			this.jqContainer = $(viewport.getContainer());
+			this.viewport = viewport;
+			this.raphael = Raphael(this.jqContainer.get(0), width, height);
 			this.raphael.canvas.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 		},
 		setSize: function(width, height) {
 			this.raphael.setSize(width, height);
 		},
 		registerSprite: function(sprite) {
-			this._super(sprite);
+			//this._super(sprite);
+			/* done by the renderer
 			var group = this.makeGroup();
 			group.setAttribute('id', sprite.getID());
 			this.raphael.canvas.appendChild(group);
 			var useInstance = document.createElementNS(this.raphael.canvas.svgns, 'use');
 			group.appendChild(useInstance);
+			*/
 		},
 		/**
 		 * The viewport loads symbols into a <defs> container. A symbol may then be
@@ -112,21 +105,7 @@
 			el.node = el;
 			el.transformations = [];
 			return el;
-		},
-
-
-		/**
-		 * 
-		 */
-		makeNewSymbolID: function(name, copySymbol /* = false */) {
-			if (!(name in this.sourceCopies)) {
-				this.sourceCopies[name] = 0;
-			}
-			else if (copySymbol) {
-				this.sourceCopies[name] += 1;
-			}
-			return 'symbol-' + name.replace(/\/|\./g, '-') + '-' + this.sourceCopies[name];
-		},
+		}
 
 	}, 'Romano.RaphaelSurface');
 })(jQuery);

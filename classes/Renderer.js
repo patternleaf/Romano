@@ -8,6 +8,44 @@
 		setContainer: function(container) {
 			this.container = container;
 		},
-		container: null
+		setup: function(sprite, viewport) {
+			this.sprite = sprite;
+			this.viewport = viewport;
+			this.surface = viewport.getSurface();
+		},
+		getSprite: function() {
+			return this.sprite;
+		},
+		getViewport: function() {
+			return this.viewport;
+		},
+		getSurface: function() {
+			return this.surface;
+		},
+		handleTransformUpdated: function() {
+		},
+		getBBox: function() {
+			throw new RomanoException('Method must be implemented.');
+		},
+		handleEnabled: function() {
+			throw new RomanoException('Method must be implemented.');
+		},
+		handleDisabled: function() {
+			throw new RomanoException('Method must be implemented.');
+		},
+		show: function() {
+			throw new RomanoException('Method must be implemented.');
+		},
+		hide: function() {
+			throw new RomanoException('Method must be implemented.');
+		},
+		isVisible: function() {
+			throw new RomanoException('Method must be implemented.');
+		},
+		
+		container: null,
+		sprite: null,
+		viewport: null,
+		surface: null
 	}, 'Romano.Renderer');
 })(jQuery);

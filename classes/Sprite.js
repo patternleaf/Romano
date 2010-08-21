@@ -1,8 +1,5 @@
 
 /**
- * A sprite is implemented as a group. It can contain other sprites, or
- * just a <use> tag pointing to a symbol, or both.
- * 
  */
 Romano.Sprite = Romano.RObject.extend({
 	init: function(id, viewport, renderer, initialState) {
@@ -344,6 +341,9 @@ Romano.Sprite = Romano.RObject.extend({
 	},
 	isVisible: function() {
 		return this.renderer.isVisible();
+	},
+	getTransform: function() {
+		return this.transform;
 	},
 	getTransformedBBox: function() {
 		if (!this.bounds.transformed) {
