@@ -1,3 +1,9 @@
+/**
+ * Renderer.js. Part of the Romano Javascript Game Engine
+ *
+ * Copyright (c) 2010 Eric Miller/Immortal Cookie Software
+ * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
+ */
 (function($) {
 	/**
 	 * 
