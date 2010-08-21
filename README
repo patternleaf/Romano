@@ -24,15 +24,15 @@ Some other niceties I'm shooting for:
 
 ## Dependencies
 
-Currently Romano depends on RaphaelJS (http://raphaeljs.com) and jQuery (http://jQuery.com). The Raphael dependency will be optional for those who want it, but jQuery's going to stick around.
+Currently Romano depends on [RaphaelJS](http://raphaeljs.com) and [jQuery](http://jQuery.com). The Raphael dependency will be optional for those who want it, but jQuery's going to stick around.
 
 ## Status
 
 In development. SVG support and much of the basic game engine logic is more or less working in an alpha-ish way. 
 
-Just getting started with refactoring for canvas rendering. (Just decided to go this way recently.)
+There is some basic support for sprites and mouse events in there for canvas surfaces now. More on its way.
 
-Note that the example code crashes older WebKit builds. The latest Safari as of this writing (March 2010), 4.0.5, fixed this, but Chrome is going to bonk.
+Note that example code may crash older WebKit builds. The latest browsers do not crash, but Safari was having issues a while back.
 
 ## Next Steps
 
@@ -46,9 +46,9 @@ Maybe in this order, maybe not:
 
 ## "Romano?"
 
-This project started as a teaching tool for a university course in interactive design. The code was tied to and depended on RaphaelJS (http://raphaeljs.com). It's moving away from that now, but it needed a name, and Guilio Romano was a pupil of the artist Raphael Urbino. Also, Romano is a kind of cheese and I like cheese. So the name stuck. :)
+This project started as a teaching tool for a university course in interactive design. The code was tied to and depended on [RaphaelJS](http://raphaeljs.com). It's moving away from that now, but it needed a name, and Guilio Romano was a pupil of the artist Raphael Urbino. Also, Romano is a kind of cheese and I like cheese. So the name stuck. :)
 
 ## License
 
-Eh, when it's a little closer to usable it'll have some sort of liberal license like the MIT license.
+The Romano core is licensed under [the MIT license](http://www.opensource.org/licenses/mit-license.php).
 
