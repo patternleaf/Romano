@@ -31,9 +31,9 @@
 		},
 		registerSprite: function() {	
 		},
-		handleSpritePreFrame: function(sprite){
+		handleSpritePreFrame: function(sprite) {
 		},
-		handleSpritePostFrame: function(sprite){
+		handleSpritePostFrame: function(sprite) {
 		},
 		/**
 		 * 

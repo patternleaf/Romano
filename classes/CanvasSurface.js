@@ -55,10 +55,12 @@
 			*/
 		},
 		handleMouseDown: function(event) {
+			/*
 			var hit = { 
 				x: event.clientX - this.jqCanvas.offset().left,
 				y: event.clientY - this.jqCanvas.offset().top
 			};
+			*/
 			this.currentMouseDown = event;
 			/*
 			var sprites = this.viewport.getSprites();
@@ -86,25 +88,28 @@
 				romanoMatrix._m.f
 			);
 		},
-		getMouseOffset: function(event) {
+		getMouseOffsetForEvent: function(event) {
+			return this.getMouseOffset({x: event.clientX, y: event.clientY });
+		},
+		getMouseOffset: function(point) {
 			var offsetParent = this.jqCanvas.offsetParent();
 			if (offsetParent && $(offsetParent).css('position') == 'fixed') {
 				return {
-					x: event.clientX + $(document).scrollLeft() - this.jqCanvas.offset().left,
-					y: event.clientY + $(document).scrollTop() - this.jqCanvas.offset().top
+					x: point.x + $(document).scrollLeft() - this.jqCanvas.offset().left,
+					y: point.y + $(document).scrollTop() - this.jqCanvas.offset().top
 				}
 			}
 			return {
-				x: event.clientX - this.jqCanvas.offset().left,
-				y: event.clientY - this.jqCanvas.offset().top
+				x: point.x - this.jqCanvas.offset().left,
+				y: point.y - this.jqCanvas.offset().top
 			};
 		},
 		handleMouseMoved: function(event) {
-			this.mousePosition = this.getMouseOffset(event);
+			this.mousePosition = this.getMouseOffsetForEvent(event);
 		},
 		handleSpritePreFrame: function(sprite) {
 			var canvasOffset = this.jqCanvas.offset();
-			this.setTransform(sprite.getTransform());
+			this.setTransform(sprite.getRenderer().getAncestralTransform());
 			sprite.buildHitMask(this.context);
 			this.resetTransform();
 			if (this.context.isPointInPath(this.mousePosition.x, this.mousePosition.y)) {
@@ -118,17 +123,20 @@
 				sprite.handleMouseOut();
 			}
 			if (this.currentMouseDown) {
-				var down = this.getMouseOffset(this.currentMouseDown);
+				var down = this.getMouseOffsetForEvent(this.currentMouseDown);
 				if (this.context.isPointInPath(down.x, down.y)) {
 					sprite.handleMouseDown(this.currentMouseDown)
 				}
 			}
 			if (this.currentMouseUp) {
-				var up = this.getMouseOffset(this.currentMouseUp);
+				var up = this.getMouseOffsetForEvent(this.currentMouseUp);
 				if (this.context.isPointInPath(up.x, up.y)) {
 					sprite.handleMouseUp(this.currentMouseUp)
 				}
 			}
+		},
+		getMousePosition: function() {
+			return this.mousePosition;
 		},
 		getContext: function() {
 			return this.context;
@@ -163,15 +171,6 @@
 			for (var i = 0; i < this.hits.length; i++) {
 				this.context.fillRect(this.hits[i].x - 5, this.hits[i].y - 5, 10, 10);
 			}
-
-			/*
-			this.resetTransform();
-			this.context.beginPath();
-			this.context.rect(0, 0, this.jqCanvas.get(0).width, this.jqCanvas.get(0).height);
-			this.context.closePath();
-			this.context.fillStyle = 'rgba(200, 200, 255, .3)';
-			this.context.fill();
-			*/
 		}
 		
 	}, 'Romano.CanvasSurface');

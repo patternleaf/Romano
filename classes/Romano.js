@@ -216,9 +216,24 @@
 		}
 		this._m = Romano._svg.createSVGMatrix();
 		if (arguments.length == 1) {
-			this._m = a;
+			if ('_m' in a) {			// copy constructor
+				this._m.a = a._m.a;
+				this._m.b = a._m.b;
+				this._m.c = a._m.c;
+				this._m.d = a._m.d;
+				this._m.e = a._m.e;
+				this._m.f = a._m.f;
+			}
+			else if ('a' in a) {		// accepts an SVGMatrix too
+				this._m.a = a.a;
+				this._m.b = a.b;
+				this._m.c = a.c;
+				this._m.d = a.d;
+				this._m.e = a.e;
+				this._m.f = a.f;
+			}
 		}
-		else if (arguments.length) {
+		else if (arguments.length) {	// raw numbers
 			this._m.a = a;
 			this._m.b = b;
 			this._m.c = c;
@@ -232,23 +247,44 @@
 	};
 	Romano.Matrix.prototype.reset = function() {
 		this._m = Romano._svg.createSVGMatrix();
+		return this;
 	};
 	Romano.Matrix.prototype.rotate = function(degrees) {
 		this._m = this._m.rotate(degrees);
+		return this;
 	};
 	Romano.Matrix.prototype.translate = function(x, y) {
 		this._m = this._m.translate(x, y);
+		return this;
 	};
 	Romano.Matrix.prototype.scale = function(s) {
 		this._m = this._m.scale(s);
+		return this;
 	};
 	Romano.Matrix.prototype.scaleNonUniform = function(x, y) {
 		this._m = this._m.scaleNonUniform(x, y);
+		return this;
 	};
-	Romano.Matrix.prototype.multiply = function(matrix) {
-		this._m = this._m.multiply(matrix._m);
+	Romano.Matrix.prototype.multiply = function(romanoMatrix) {
+		this._m = this._m.multiply(romanoMatrix._m);
+		return this;
 	};
-
+	Romano.Matrix.prototype.transform = function(point) {
+		return Romano.transformPoint(point, this);
+	};
+	/**
+	 * @throws Romano.Exception
+	 */
+	Romano.Matrix.prototype.invert = function() {
+		try {
+			this._m = this._m.inverse();
+		}
+		catch (e) {
+			if (e.code == SVGException.SVG_MATRIX_NOT_INVERTABLE) {	// love the spelling.
+				throw Romano.Exception('Could not invert matrix.');
+			}
+		}
+	};
 
 	// if currently colliding
 	// if collision between next frame boundaries (unimplemented)
@@ -269,9 +305,7 @@
 	};
 	
 	Romano.pointInRect = function(point, rect) {
-		return 
-			(point.x >= rect.x && point.x <= (rect.x + rect.width)) &&
-			(point.y >= rect.y && point.y <= (rect.y + rect.height));
+		return (point.x >= rect.x && point.x <= (rect.x + rect.width)) && (point.y >= rect.y && point.y <= (rect.y + rect.height));
 	}
 	
 	Romano.addVectors = function(v1, v2) {
@@ -306,6 +340,7 @@
 
 	Romano.degToRadFactor = (Math.PI / 180);
 	Romano.radToDegFactor = (180 / Math.PI);
+	Romano.circleInRadians = Math.PI * 2;
 	
 	/**
 	 * @param float angle The angle of the vector, in degrees. 

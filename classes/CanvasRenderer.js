@@ -14,6 +14,8 @@
 				bbox: false,
 				position: false
 			};
+			
+			this.canvasTransform = new Romano.Matrix();
 		},
 		
 		setup: function(sprite, viewport) {
@@ -27,12 +29,23 @@
 		},
 		handleChildRemoved: function(sprite) {
 		},
+		handleBeginFrame: function() {
+		},
+		handleEndFrame: function() {
+			if (this.sprite.isEnabled()) {
+				var surface = this.viewport.getSurface();
+				var context = surface.getContext();
+				surface.setTransform(this.canvasTransform);
+				this.sprite.draw(context);
+				this.drawDebugViz();
+			}
+		},
+		handleParentTransformUpdated: function() {
+			this.canvasTransform = this.getAncestralTransform();
+		},
 		handleTransformUpdated: function() {
-			var surface = this.viewport.getSurface();
-			var context = surface.getContext();
-			surface.setTransform(this.sprite.getTransform());
-			this.sprite.draw(context);
-			this.drawDebugViz();
+			//surface.setTransform(this.sprite.getTransform());
+			this.canvasTransform = this.getAncestralTransform();
 		},
 		drawDebugViz: function() {
 			if (this.debug.bbox) {
@@ -42,6 +55,24 @@
 				context.fill();
 			}
 		},
+		
+		// pretty bad. we should just draw in depth-first order, but that's
+		// not how the viewport works right now. :(
+		getAncestralTransform: function() {
+			var s = this.sprite;
+			var p = null;
+			var ancestry = [s];
+			while (p = s.getParent()) {
+				ancestry.push(p);
+				s = p;
+			}
+			var transform = new Romano.Matrix();
+			while (ancestry.length) {
+				transform = transform.multiply(ancestry.pop().getTransform());
+			}
+			return transform;
+		},
+		
 		getBBox: function() {
 			
 		},

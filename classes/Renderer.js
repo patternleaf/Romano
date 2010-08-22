@@ -48,6 +48,13 @@
 		isVisible: function() {
 			throw new RomanoException('Method must be implemented.');
 		},
+		handleBeginFrame: function() {
+		},
+		handleEndFrame: function() {
+		},
+		handleParentTransformUpdated: function() {
+		},
+
 		
 		container: null,
 		sprite: null,

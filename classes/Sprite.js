@@ -119,6 +119,7 @@ Romano.Sprite = Romano.RObject.extend({
 			this.children.push(sprite);
 			sprite.parent = this;
 			this.renderer.handleChildAdded(sprite);
+			sprite.updateTransform(true);
 		}
 		return this;
 	},
@@ -155,6 +156,7 @@ Romano.Sprite = Romano.RObject.extend({
 
 	_onFrame: function() {
 
+		this.renderer.handleBeginFrame();
 		$(this).trigger('beginFrame');
 
 		this.velocity.x += this.acceleration.x;
@@ -184,7 +186,7 @@ Romano.Sprite = Romano.RObject.extend({
 		this.checkViewportContainment();
 
 		$(this).trigger('endFrame');
-		//$(this).trigger('frame');
+		this.renderer.handleEndFrame();
 
 		this.last.bounds.rough = $.extend({}, this.last.bounds.rough);
 		this.last.bounds.transformed = $.extend({}, this.last.bounds.transformed);
@@ -264,7 +266,6 @@ Romano.Sprite = Romano.RObject.extend({
 			this.transform.scaleNonUniform(this.scale.x, this.scale.y);
 
 			this.renderer.handleTransformUpdated();
-			//this.handleTransformUpdated();
 
 			this._viewportPosition = Romano.transformPoint({ x: 0, y: 0 }, this.transform);
 
@@ -281,7 +282,7 @@ Romano.Sprite = Romano.RObject.extend({
 			$(this).trigger('transformChanged');
 
 			for (var i = 0; i < this.children.length; i++) {
-				this.children[i].handleParentUpdatedTransform();
+				this.children[i].handleParentTransformUpdated();
 			}
 
 			this.forceUpdate = false;
@@ -289,8 +290,6 @@ Romano.Sprite = Romano.RObject.extend({
 		}
 	},
 
-	// handleTransformUpdated: function() {
-	// },
 
 	checkViewportContainment: function(point) {
 		if (this._viewportPosition.x < 0 && this.last._viewportPosition.x >= 0) {
@@ -337,6 +336,9 @@ Romano.Sprite = Romano.RObject.extend({
 		this.renderer.handleDisabled();
 		return this;
 	},
+	isEnabled: function() {
+		return this.enabled;
+	},
 	hide: function() {
 		this.renderer.hide();
 		return this;
@@ -377,8 +379,8 @@ Romano.Sprite = Romano.RObject.extend({
 		}
 	},
 
-	handleParentUpdatedTransform: function() {
-		//this.drawDebugViz();
+	handleParentTransformUpdated: function() {
+		this.renderer.handleParentTransformUpdated();
 	},
 
 	getCollisionInfo: function(otherSprite) {
@@ -569,6 +571,13 @@ Romano.Sprite = Romano.RObject.extend({
 	getRotationCenter: function(cx, cy) {
 		return { x: this.rotationCenter.x, y: this.rotationCenter.y };
 	},
+	
+	convertClientPointToLocal: function(clientPoint) {
+		var surface = this.getRenderer().getSurface();
+		var invertedTransform = new Romano.Matrix(this.getTransform());
+		invertedTransform.invert();
+		return invertedTransform.transform(surface.getMouseOffset(clientPoint));
+	}
 
 }, 'Romano.Sprite');
 /*
