@@ -53,10 +53,13 @@
 			this.lastFrameTime = 0;
 			this.running = options.running || true;
 			this.sprites = {};
+			this.scrims = {};
+			this.orderedScrims = [];
 			this.timer = null;
 			this.debug = { bbox: false, position: false };
 
-			this.keyInput = $('<input type="text" style="position:absolute; left:-32000px; height:0px; width:0px" />');
+			this.keyInput = $('<input type="text" style="position:absolute; left:-32000px;" />');
+			//this.keyInput = $('<input type="text" style="position:absolute; left:0;" />');
 			this.jqContainer.append(this.keyInput);
 			this.keyInput.keydown((function(event) {
 				this.handleKeyDown(event);
@@ -115,7 +118,11 @@
 				this.camera.velocity.y *= (1 - this.camera.friction);
 
 				if (this.camera.position.x != this.camera.last.position.x || this.camera.position.y != this.camera.last.position.y) {
-					$(this).trigger('cameraPositionChanged');
+					$(this).trigger('cameraPositionChanged', [this.camera.position.x, this.camera.position.y]);
+				}
+
+				for (var i = 0; i < this.orderedScrims.length; i++) {
+					this.orderedScrims[i].draw();
 				}
 
 				var sprite = null;
@@ -233,6 +240,19 @@
 			return { x: this.camera.position.x, y: this.camera.position.y };
 		},
 
+		setFriction: function(friction) {
+			this.friction = friction;
+		},
+		getFriction: function() {
+			return this.friction;
+		},
+		setDamping: function(damping) {
+			this.damping = damping;
+		},
+		getDamping: function() {
+			return this.damping;
+		},
+
 		getFrameRate: function() {
 			return this.frameRate;
 		},
@@ -292,6 +312,25 @@
 				delete this.sprites[spriteID];
 			}
 			this.surface.unregisterSprite(sprite);
+		},
+		
+		registerScrim: function(scrim) {
+			var scrimID = scrim.getGUID();
+			if (!(scrimID in this.scrims)) {
+				this.scrims[scrimID] = scrim;
+				this.orderedScrims.push(scrim);
+			}
+//			this.surface.registerScrim(scrim);
+		},
+		
+		unregisterScrim: function(scrim) {
+			var scrimID = scrim.getGUID();
+			if (scrimID in this.scrims) {
+				delete this.scrims[scrimID];
+				var i = this.orderedScrims.indexOf(scrim);
+				this.orderedScrims.splice(i, 1);
+			}
+//			this.surface.unregisterScrim(scrim);
 		},
 
 		keydown: function(f) {
