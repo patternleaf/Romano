@@ -382,6 +382,15 @@ Romano.Sprite = Romano.RObject.extend({
 	handleParentTransformUpdated: function() {
 		this.renderer.handleParentTransformUpdated();
 	},
+	
+	handleMouseOver: function() {
+	},
+	handleMouseOut: function() {
+	},
+	handleMouseDown: function() {
+	},
+	handleMouseUp: function() {
+	},
 
 	getCollisionInfo: function(otherSprite) {
 		if (this.enabled && otherSprite.enabled) {
@@ -570,6 +579,19 @@ Romano.Sprite = Romano.RObject.extend({
 	},
 	getRotationCenter: function(cx, cy) {
 		return { x: this.rotationCenter.x, y: this.rotationCenter.y };
+	},
+	
+	setFriction: function(friction) {
+		this.friction = friction;
+	},
+	getFriction: function() {
+		return this.friction;
+	},
+	setDamping: function(damping) {
+		this.damping = damping;
+	},
+	getDamping: function() {
+		return this.damping;
 	},
 	
 	convertClientPointToLocal: function(clientPoint) {
