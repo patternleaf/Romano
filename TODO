@@ -1,0 +1,12 @@
+
+- cleanup sprite instantiation/subclassing
+	- shouldn't need so many arguments
+- make Romano.app be "official"
+	- add a current renderer/surface to Romano.app (can help clean up sprite instantiation)
+	- current viewport, too?
+
+- make Billboard
+- make Scrim (?)
+	- investigate use of polymaps.org (or at least their polygon fill algorithm) for tiled backgrounds?
+- make/finish Space
+ 	- make WrappedSpace as subclass of Space
