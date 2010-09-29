@@ -70,7 +70,7 @@
 			});
 			$(this).bind('endFrame', this.handleEndFrame._plBind(this));
 		},
-		handleEndFrame: function() {
+		handleEndFrame: function(event, cameraX, cameraY) {
 			var d = Romano.subtractVectors(this.getViewportPosition(), this.getLastViewportPosition());
 			var am = Romano.getAngleAndMagnitudeFromVector(d);
 			if (!this.leftViewport) {

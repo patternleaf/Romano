@@ -8,7 +8,6 @@
 (function($) {
 	Romano.WrappedSpace = Romano.RObject.extend({
 		init: function(dimensions, viewport, viewportOrigin) {
-			this.dimensions = dimensions;
 			this.width = dimensions.width;
 			this.height = dimensions.height;
 			this.viewport = viewport;
