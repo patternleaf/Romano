@@ -96,7 +96,9 @@
 	Romano.RObject.prototype.toString = function() {
 		return this._className + '[' + this._guid + ']';
 	};
-	
+	Romano.RObject.prototype.getGUID = function() {
+		return this._guid;
+	};
 	
 	Romano.Persistable = Romano.RObject.extend({
 		init: function() {
