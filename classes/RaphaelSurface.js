@@ -29,6 +29,9 @@
 			group.appendChild(useInstance);
 			*/
 		},
+		unregisterSprite: function(sprite) {
+			
+		},
 		/**
 		 * The viewport loads symbols into a <defs> container. A symbol may then be
 		 * used by multiple sprites via a <use> tag.

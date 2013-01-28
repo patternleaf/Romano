@@ -98,7 +98,7 @@
 		},
 
 		run: function() {
-			$(this).trigger('running');
+			$(this).triggerHandler('running');
 			this.lastFrameTime = new Date().valueOf();
 			this.timer = setTimeout((function() {
 				this.fps = 1000 / (new Date().valueOf() - this.lastFrameTime);

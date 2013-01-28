@@ -38,9 +38,22 @@
 			this.group.appendChild(this.instance);
 
 		},
-		handleSpriteRemoved: function() {
-			this.group.remove();
+
+		toBack: function() {
+			// sketchy.
+			var firstChild = this.group.parentNode.firstChild;
+			this.group.parentNode.insertBefore(this.group, firstChild);
 		},
+
+		// ?? 
+		remove: function() {
+			//console.log('remove');
+			$(this.group).remove();
+		},
+		
+		// handleSpriteRemoved: function() {
+		// 	this.group.remove();
+		// },
 		
 		setID: function(id) {
 			this.group.setAttribute('id', id);
