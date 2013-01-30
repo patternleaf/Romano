@@ -40,7 +40,7 @@
 		},
 
 		toBack: function() {
-			// sketchy.
+			// sketchy. revisit this.
 			var firstChild = this.group.parentNode.firstChild;
 			this.group.parentNode.insertBefore(this.group, firstChild);
 		},

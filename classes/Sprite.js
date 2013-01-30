@@ -100,6 +100,10 @@ Romano.Sprite = Romano.RObject.extend({
 		return this.viewport;
 	},
 	
+	sendToBack: function() {
+		this.getRenderer().toBack()
+	},
+	
 	remove: function() {
 		this.renderer.remove();
 		this.viewport.unregisterSprite(this);

@@ -54,7 +54,8 @@
 		},
 		handleParentTransformUpdated: function() {
 		},
-
+		toBack: function() {	
+		},
 		
 		container: null,
 		sprite: null,
